@@ -1,157 +1,142 @@
-import React, { useState, useEffect, useRef} from 'react';
+import React, { useEffect, useState, useCallback} from 'react';
 import { Card, CardHeader, CardContent, CardFooter } from '../components/ui/card.jsx';
 import { Button } from '../components/ui/button.jsx';
-import { TranscribeStreamingClient, StartStreamTranscriptionCommand } from '@aws-sdk/client-transcribe-streaming';
-import { CognitoIdentityClient } from "@aws-sdk/client-cognito-identity";
-import { fromCognitoIdentityPool } from "@aws-sdk/credential-provider-cognito-identity";
+import { useDropzone } from 'react-dropzone';
+import { toast, ToastContainer } from 'react-toastify';
+import { useAudioRecorder } from 'react-audio-voice-recorder'; 
+import axios from 'axios';
+import Nav from '../components/Nav.jsx';
 
-// Initialize the Cognito Identity client
-const REGION = "us-east-1"; // e.g. us-west-2
-const IDENTITY_POOL_ID = "us-east-1:63529a34-e830-4043-8433-78015127fba4"; 
-
-
-
-function RealTimeTranscription() {
-  const [isRecording, setIsRecording] = useState(false);
+function RealTimeTranscription(props) {
+  const [uploading, setUploading] = useState(false);
   const [transcription, setTranscription] = useState('');
-  const audioContextRef = useRef(null);
-  const isRecordingRef = useRef(null);
-  const transcribeClientRef = useRef(null);
-  const mediaStreamRef = useRef(null);
-  const audioChunksQueue = useRef([]);
+  const [notes, setNotes] = useState('');
+  const [audioFile, setAudioFile] = useState(null);
+  const [audioDuration, setAudioDuration] = useState(null);
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [isRecordOpen, setIsRecordOpen] = useState(false);
+
+  const user = props.user;
+
+  const {
+    startRecording,
+    stopRecording,
+    recordingBlob,
+    isRecording,
+  } = useAudioRecorder({
+    audioTrackConstraints: { echoCancellation: true }
+  });
 
   useEffect(() => {
-    const cognitoIdentityClient = new CognitoIdentityClient({ region: REGION });
-    const credentials = fromCognitoIdentityPool({
-      client: cognitoIdentityClient,
-      identityPoolId: IDENTITY_POOL_ID,
-    });
-    transcribeClientRef.current = new TranscribeStreamingClient({
-      region: REGION,
-      credentials: {
-        accessKeyId: 'AKIAZI2LJEJVOBMBEC3B',
-        secretAccessKey: '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'
-      }
-    });
-    isRecordingRef.current = isRecording; // Synchronize ref with state
-  }, [isRecording]);
-
-  const getAudioContext = () => {
-    if (!audioContextRef.current || audioContextRef.current.state === 'closed') {
-      audioContextRef.current = new AudioContext();
+    if (!uploading) {
+      // Perform any action needed after uploading is complete
+      console.log('Upload complete');
     }
-    if (audioContextRef.current.state === "suspended") {
-      audioContextRef.current.resume();
+  }, [uploading]);
+
+  const handleAudioSave = useCallback(async () => {
+    if (!recordingBlob) {
+      toast.error('No recording found.');
+      return;
     }
-    return audioContextRef.current;
-  };
-
-  const startRecording = async () => {
-    try {
-      if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
-        audioContextRef.current.close();
-      }
-      audioContextRef.current = new AudioContext();
-      setIsRecording(true); // Update state
-      isRecordingRef.current = true; // Synchronize ref with state
-      setTranscription('');
-      const audioContext = getAudioContext();
-      mediaStreamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true });
-      await audioContext.audioWorklet.addModule('worklets/audio-chopper-processor.worklet.js');
-      const audioWorkletNode = new AudioWorkletNode(audioContext, 'audio-chopper-processor');
-      const mediaStreamSource = audioContext.createMediaStreamSource(mediaStreamRef.current);
-      mediaStreamSource.connect(audioWorkletNode);
-
-      audioWorkletNode.port.onmessage = (event) => {
-        audioChunksQueue.current.push(event.data);
-      };
-
-      const audioStream = async function* () {
-        while (isRecordingRef.current) {
-          while (audioChunksQueue.current.length > 0) {
-            const audioChunk = audioChunksQueue.current.shift();
-            yield { AudioEvent: { AudioChunk: audioChunk } };
-          }
-          await new Promise((resolve) => setTimeout(resolve, 100));
-        }
-      };
-
-      const command = new StartStreamTranscriptionCommand({
-        LanguageCode: 'en-US',
-        MediaSampleRateHertz: 48000,
-        MediaEncoding: 'pcm',
-        AudioStream: audioStream(),
-      });
-
-      let data;
-      try {
-        data = await transcribeClientRef.current.send(command);
-      } catch (error) {
-        console.error('Error sending transcription command:', error);
-      }
-
-      for await (const event of data.TranscriptResultStream) {
-        const results = event.TranscriptEvent.Transcript.Results;
-        if (results.length && !results[0].IsPartial) {
-          const newTranscript = results[0].Alternatives[0].Transcript;
-          setTranscription((prevTranscription) => prevTranscription + newTranscript + ' ');
-        }
-      };
-    } catch (error) {
-      console.error('Error starting transcription:', error);
-    }
-  }
-
-  const cleanup = () => {
-    if (transcribeClientRef.current) {
-      transcribeClientRef.current.destroy();
-    }
-  };
-
-  useEffect(() => {
-    return cleanup;
-  }, []);
   
-  const stopRecording = () => {
-    if (audioContextRef.current) {
-      audioContextRef.current.close();
-      audioContextRef.current = null;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', recordingBlob, 'audio.webm');
+  
+      const response = await axios.post(`http://localhost:3030/api/transcribe`, formData);
+  
+      setTranscription(response.data.transcription);
+      toast.success('Transcription successful.');
+    } catch (error) {
+      toast.error('An error occurred during transcription.');
+    } finally {
+      setUploading(false);
     }
-    setIsRecording(false);
-    isRecordingRef.current = false;
-    cleanup();
+  }, [recordingBlob]);
+
+  const onDrop = useCallback((acceptedFiles) => {
+    if (acceptedFiles.length === 0) {
+      return;
+    }
+
+    const file = acceptedFiles[0];
+    if (!file.type.startsWith('audio/') || file.size > 400 * 1024 * 1024) {
+      return;
+    }
+    setAudioFile(file);
+  }, []);
+
+  const transcribeAudio = async () => {
+    setUploading(true);
+
+    try {
+      const formData = new FormData();
+      audioFile && formData.append('file', audioFile);
+      const response = await axios.post(`http://localhost:3030/api/transcribe`, formData);
+
+      console.log(response);
+
+      setTranscription(response.data.transcription);
+      setNotes(response.data.notes);
+      toast.success('Transcription successful.');
+    } catch (error) {
+      console.error(error); // For more detailed debugging
+      toast.error('An error occurred during transcription.');
+    } finally {
+      setUploading(false);
+    }
   };
 
+  const { getRootProps, getInputProps, isDragActive, isDragReject } = useDropzone({
+    onDrop,
+    accept: 'audio/*',
+  });
+
+  
   return (
     <div className="flex flex-col h-screen w-screen bg-white dark:bg-zinc-900">
-      <nav className="flex items-center justify-between px-6 py-4 border-b border-zinc-200 dark:border-zinc-800">
-        <div className="flex items-center space-x-4">
-          <svg
-            className="h-8 w-8 text-zinc-900 dark:text-zinc-50"
-            fill="none"
-            height="24"
-            stroke="currentColor"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-            width="24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path d="M12 3v18c-5 0-9-4-9-9s4-9 9-9z" />
-            <path d="M12 3c5 0 9 4 9 9s-4 9-9 9V3z" />
-          </svg>
-          <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">Voice to Text Demo</h1>
-        </div>
-      </nav>
+      <Nav user={user}/>
       <div className="flex flex-1 overflow-hidden">
         <aside className="w-64 border-r border-zinc-200 dark:border-zinc-800 overflow-auto">
           <nav className="flex flex-col gap-4 p-4">
-            <h2 className="text-md font-bold text-zinc-500 dark:text-zinc-400">Controls</h2>
-            <div className="space-y-4 bg-black/5 w-fit rounded-md">
-              <Button onClick={isRecording ? stopRecording : startRecording} variant={isRecording ? "destructive" : "primary"}>
-                {isRecording ? "Stop Transcription" : "Start Transcription"}
-              </Button>
+            <div className="space-y-4">
+              <div id="upload" className="flex flex-col">
+                <h3 className="text-md font-bold text-zinc-500 dark:text-zinc-400 cursor-pointer" onClick={() => setIsUploadOpen(!isUploadOpen)}>Upload Audio</h3>
+                {isUploadOpen && (
+                  <div className="flex flex-row justify-around items-center mt-2">
+                    <div {...getRootProps()} className="bg-black/5 w-fit rounded-md p-2 dropzone border-2 border-dashed rounded cursor-pointer">
+                      <input {...getInputProps()} />
+                      {isDragActive ? (
+                        <p>Drop the audio file here...</p>
+                      ) : (
+                        <p className="text-xs font-medium">Upload File</p>
+                      )}
+                    </div>
+                    <button className={`bg-blue-500 hover:bg-blue-700 text-white font-medium text-xs p-2 rounded ${uploading ? "bg-gray-100 disable" : ""}`} onClick={transcribeAudio} disabled={uploading}>
+                      {'Transcribe →'}
+                    </button>
+                  </div>
+                )}
+              </div>
+              <hr className="border-t border-zinc-200 dark:border-zinc-800"/>
+              <div id="record" className="flex flex-col">
+                <h3 className="text-md font-bold text-zinc-500 dark:text-zinc-400 cursor-pointer" onClick={() => setIsRecordOpen(!isRecordOpen)}>Record Audio</h3>
+                {isRecordOpen && (
+                  <div className="flex flex-wrap justify-start items-center gap-2 mt-2">
+                    <button className="bg-green-500 hover:bg-blue-700 text-white font-medium text-xs p-2 rounded" onClick={startRecording} disabled={isRecording || uploading}>
+                      Start Recording
+                    </button>
+                    <button className="bg-red-500 hover:bg-red-700 text-white font-medium text-xs p-2 rounded" onClick={stopRecording} disabled={!isRecording || uploading}>
+                      Stop Recording
+                    </button>
+                    <button className=" bg-blue-500 hover:bg-blue-700 text-white font-medium text-xs p-2 rounded" onClick={handleAudioSave} disabled={uploading}>
+                      {uploading ? 'Transcribing...' : 'Transcribe →'}
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </nav>
         </aside>
@@ -160,17 +145,50 @@ function RealTimeTranscription() {
             <CardHeader>
               <h2 className="text-lg font-semibold">Transcription Output</h2>
             </CardHeader>
+            {/* <CardContent>
+              {transcription.length > 0 ? (
+                transcription.map((segment, index) => (
+                  <p key={index} className="text-gray-700 dark:text-gray-300">
+                    <strong>Speaker {segment.speaker}: </strong>
+                    {segment.text}
+                    <span className="text-xs text-gray-500"> ({segment.start}s - {segment.end}s)</span>
+                  </p>
+                ))
+              ) : (
+                <p className="text-gray-700 dark:text-gray-300">Start speaking, and your words will appear here...</p>
+              )}
+            </CardContent> */}
             <CardContent>
-              <p className="text-gray-700 dark:text-gray-300">{transcription || "Start speaking, and your words will appear here..."}</p>
+              {uploading ? (
+                <div className="flex justify-center items-center" role="status">
+                  <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-gray-700 dark:border-gray-300 border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
+                  <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)] text-gray-700 dark:text-gray-300 ml-4">Loading...</span>
+                </div>
+              ) : (
+                <div className="flex flex-row justify-between space-x-5">
+                  <div className="w-1/2 space-y-4 text-md font-medium">
+                    {transcription.length > 0 && <p className='text-xl font-semibold'>Transcription</p>}
+                    {transcription.split('\n').map((line, index) => (
+                      <p key={index}>{line}</p>
+                    ))}
+                  </div>
+                  <div className="w-1/2 space-y-4 text-md font-medium">
+                    {notes.length > 0 && <p className='text-xl font-semibold'>Transcription</p>}
+                    {notes.split('\n').map((note, index) => (
+                      <p key={index}>{note}</p>
+                    ))}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </main>
       </div>
-      <footer className="flex items-center justify-between px-6 py-4 border-t border-zinc-200 dark:border-zinc-800">
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">©2024 Magnum Consulting</p>
-      </footer>
     </div>
   );
 }
 
 export default RealTimeTranscription;
+
+
+

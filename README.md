@@ -1,9 +1,28 @@
-# real-time-transcription-demo
+# Real-Time Transcription Demo with Electron
 
+This repository showcases a demo project that combines the power of React and Electron to provide real-time transcription capabilities in a desktop application. It demonstrates how to capture audio input from the user's microphone, process it in real time, and display the transcribed text within a sleek and responsive user interface.
 
-# Getting Started with Create React App
+## Project Overview
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project is a desktop application built using Electron and React. It leverages WebSockets and the Web Speech API for real-time audio transcription. The application is designed to be cross-platform, working seamlessly on Windows, macOS, and Linux.
+
+## Getting Started
+
+To run this project on your local machine, follow these steps:
+
+1. Clone this repository to your local machine.
+2. Navigate to the project directory in your terminal.
+3. Run `npm install` to install all the necessary dependencies.
+4. To start the application in development mode, run `npm run electron-dev`.
+
+This will launch the Electron application with a React frontend, and you can interact with it as you would with any desktop application. The application will automatically reload if you make any changes to the code.
+
+## Key Features
+
+- **Real-Time Audio Transcription**: Captures audio from the user's microphone and uses the Web Speech API to transcribe it in real time.
+- **Electron Framework**: Allows for the creation of a standalone desktop application that is compatible across multiple operating systems.
+- **React Frontend**: Utilizes modern React features such as hooks and functional components to create a responsive and interactive user interface.
+- **Cross-Platform Compatibility**: Works on Windows, macOS, and Linux without any modifications to the codebase.
 
 ## Available Scripts
 
@@ -11,64 +30,33 @@ In the project directory, you can run:
 
 ### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Runs the React app in development mode. Open [http://localhost:3000](http://localhost:3000) to view it in your browser. The page will reload with any code changes.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### `npm run electron-dev`
+
+Starts the Electron app in development mode. This script first builds the React app, then launches the Electron application where the React app is loaded.
 
 ### `npm test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Launches the test runner in interactive watch mode. Use this to run your unit tests.
 
 ### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Builds the app for production to the `build` folder. It optimizes the build for the best performance by minifying the code and optimizing assets. This is necessary before packaging the app for production.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### `npm run electron-pack`
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Packages the Electron app for distribution. This script builds the React app for production, then packages the Electron app using Electron Builder.
 
-### `npm run eject`
+## Deployment
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+This section provides a brief overview of how to package and distribute the Electron application. For more detailed instructions, please refer to the Electron documentation on packaging and distribution.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Contributing
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+We welcome contributions to this project! Whether it's submitting a bug report, proposing a new feature, or contributing code, we encourage you to get involved.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## License
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+This project is licensed under the MIT License - see the LICENSE file for details.
 
