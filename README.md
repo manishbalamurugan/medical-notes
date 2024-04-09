@@ -1,6 +1,6 @@
 # Real-Time Transcription Demo with Electron
 
-This repository showcases a demo project that combines the power of React and Electron to provide real-time transcription capabilities in a desktop application. It demonstrates how to capture audio input from the user's microphone, process it in real time, and display the transcribed text within a sleek and responsive user interface.
+This repository showcases a demo project that combines the power of React and Electron to provide a web application designed to transcribe audio in real-time, leveraging Whisper and OpenAI LLMs for accurate audio transcription and notes generation.
 
 ## Project Overview
 
@@ -23,6 +23,16 @@ This will launch the Electron application with a React frontend, and you can int
 - **Electron Framework**: Allows for the creation of a standalone desktop application that is compatible across multiple operating systems.
 - **React Frontend**: Utilizes modern React features such as hooks and functional components to create a responsive and interactive user interface.
 - **Cross-Platform Compatibility**: Works on Windows, macOS, and Linux without any modifications to the codebase.
+
+
+## Key Components
+- **React Components**: Manage the UI and state of the application.
+  - `src/app/RealTimeTranscription.jsx`: Main component for handling audio uploads and displaying transcriptions and notes.
+- **Server Endpoints**: Handle audio processing and API interactions.
+  - `api/server.js`: Express server setup and routes for audio transcription and notes generation.
+- **External APIs**:
+  - OpenAI's Whisper for enhanced transcription accuracy.
+  - GPT-4 for generating medical notes from transcriptions.
 
 ## Available Scripts
 
@@ -51,10 +61,6 @@ Packages the Electron app for distribution. This script builds the React app for
 ## Deployment
 
 This section provides a brief overview of how to package and distribute the Electron application. For more detailed instructions, please refer to the Electron documentation on packaging and distribution.
-
-## Contributing
-
-We welcome contributions to this project! Whether it's submitting a bug report, proposing a new feature, or contributing code, we encourage you to get involved.
 
 ## License
 
