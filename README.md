@@ -32,7 +32,7 @@ In the project directory, you can run:
 
 Runs the React app in development mode. Open [http://localhost:3000](http://localhost:3000) to view it in your browser. The page will reload with any code changes.
 
-### `npm run electron-dev`
+### `npm run electron`
 
 Starts the Electron app in development mode. This script first builds the React app, then launches the Electron application where the React app is loaded.
 
@@ -59,4 +59,5 @@ We welcome contributions to this project! Whether it's submitting a bug report, 
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
 
