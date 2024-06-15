@@ -1,25 +1,35 @@
-import React from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route} from 'react-router-dom';
-import RealTimeTranscription from './app/RealTimeTranscription';
+import RealTimeTranscription from './app/auth/screens/RealTimeTranscription';
+import Dashboard from './app/auth/screens/Dashboard';
 import Login from './app/auth/screens/Login';
 
 import { AuthProvider } from "./contexts/AuthContext";
 import RequireAuth from "./app/auth/utils/WithPrivateRoute";
 import Register from './app/auth/screens/Register';
 
-import { getAuth } from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 function App() {
 
+  const [user, setUser] = useState(null);
   const auth = getAuth();
-  const user = auth.currentUser
 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+    });
+
+    return () => unsubscribe();
+  }, [auth]);
 
   return (
     <AuthProvider>
       <Router>
           <Routes>
-              <Route exact path="/" element={<RequireAuth> <RealTimeTranscription user={user} /> </RequireAuth>} />
+              <Route exact path="/" element={<RequireAuth> <Dashboard user={user} /></RequireAuth>} />
+              <Route exact path="/playground" element={<RequireAuth> <RealTimeTranscription user={user} /> </RequireAuth>} />
+              <Route exact path="/playground/:noteID" element={<RequireAuth><RealTimeTranscription user={user} /></RequireAuth>} />
               <Route exact path="/login" element={<Login />} />
               <Route exact path="/register" element={<Register/>} />
           </Routes>

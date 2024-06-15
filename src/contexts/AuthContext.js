@@ -24,12 +24,28 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("")
 
-  function register(email, password) {
-    return createUserWithEmailAndPassword(auth, email, password);
+  async function register(email, password) {
+    return createUserWithEmailAndPassword(auth, email, password).then((result) => {
+      if (result.user) {
+        setCurrentUser({
+          ...currentUser,
+          displayName: result.user.displayName,
+          photoURL: result.user.photoURL,
+        });
+      }
+    });
   }
 
-  function login(email, password) {
-    return signInWithEmailAndPassword(auth, email, password);
+  async function login(email, password) {
+    return signInWithEmailAndPassword(auth, email, password).then((result) => {
+      if (result.user) {
+        setCurrentUser({
+          ...currentUser,
+          displayName: result.user.displayName,
+          photoURL: result.user.photoURL,
+        });
+      }
+    });
   }
 
   async function loginWithGoogle() {
