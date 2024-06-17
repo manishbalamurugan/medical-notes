@@ -17,7 +17,7 @@ const Dashboard = (props) => {
                 });
                 setNotes(response.data);
             } catch (error) {
-                console.error('Error retrieving notes:', error);
+                console.error('Error retrieving note:', error);
             } finally {
                 setLoading(false);
             }
