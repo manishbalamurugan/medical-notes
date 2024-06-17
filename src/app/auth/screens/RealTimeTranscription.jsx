@@ -46,7 +46,7 @@ function RealTimeTranscription(props) {
 
   const fetchNoteData = async (noteID) => {
     try {
-      const response = await axios.get(`http://localhost:3030/api/retrieveNote`, {
+      const response = await axios.get(`http://54.196.178.210:3030/api/retrieveNote`, {
         params: { noteID }
       });
       const noteData = response.data;
@@ -74,7 +74,7 @@ function RealTimeTranscription(props) {
       const formData = new FormData();
       formData.append('file', recordingBlob, 'audio.webm');
   
-      const response = await axios.post(`http://localhost:3030/api/transcribe`, formData);
+      const response = await axios.post(`http://54.196.178.210:3030/api/transcribe`, formData);
   
       setTranscription(response.data.transcription);
       setNotes(response.data.notes);
@@ -105,7 +105,7 @@ function RealTimeTranscription(props) {
     try {
       const formData = new FormData();
       audioFile && formData.append('file', audioFile);
-      const response = await axios.post(`http://localhost:3030/api/transcribe`, formData);
+      const response = await axios.post(`http://54.196.178.210:3030/api/transcribe`, formData);
 
       console.log(response);
 
@@ -141,7 +141,7 @@ function RealTimeTranscription(props) {
     setIsNoteEditable(false);
 
     try {
-      const response = await axios.post('http://localhost:3030/api/saveNote', {
+      const response = await axios.post('http://54.196.178.210:3030/api/saveNote', {
         noteID: noteID,
         userID: user?.email,
         title: noteTitle,
@@ -169,7 +169,7 @@ function RealTimeTranscription(props) {
     toast.success('Note Submitted!');
 
     try {
-      const response = await axios.post('http://localhost:3030/api/saveNotes', {
+      const response = await axios.post('http://54.196.178.210:3030/api/saveNotes', {
         userID: user?.email,
         title: noteTitle,
         notes: notes.length > 0 ? notes : "N/A",

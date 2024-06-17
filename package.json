@@ -52,7 +52,40 @@
     "electron": "electron .",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "electron-dev": "concurrently \"npm:start\" \"wait-on http://localhost:3000 && electron .\"",
+    "electron-pack": "npm run build && electron-builder",
+    "electron-win": "npm run build && electron-builder --win"
+  },
+  "build": {
+    "appId": "com.magnumconsulting.medicalnotes",
+    "files": [
+      "build/**/*",
+      "node_modules/**/*",
+      "package.json",
+      "electron.js"
+    ],
+    "directories": {
+      "buildResources": "public"
+    },
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "extraResources": [
+        "electron.js"
+      ]
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "extraResources": [
+        "electron.js"
+      ]
+    }
   },
   "eslintConfig": {
     "extends": [
@@ -73,6 +106,7 @@
     ]
   },
   "devDependencies": {
-    "electron": "^29.1.6"
+    "electron": "^31.0.1",
+    "electron-builder": "^24.13.3"
   }
 }
