@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 import { useAudioRecorder } from 'react-audio-voice-recorder'; 
 import axios from 'axios';
 import Nav from '../../../components/Nav.jsx';
@@ -121,7 +121,7 @@ function RealTimeTranscription(props) {
     }
   };
 
-  const { getRootProps, getInputProps, isDragActive, isDragReject } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: 'audio/*',
   });

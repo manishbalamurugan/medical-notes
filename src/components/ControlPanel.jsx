@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useDropzone } from 'react-dropzone';
 
 function ControlPanel({
   isUploadOpen,

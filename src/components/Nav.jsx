@@ -8,10 +8,6 @@ const Nav = (props) => {
     const location = useLocation();
     const user = props.user;
 
-    const togglePopover = () => {
-        setIsPopoverOpen(!isPopoverOpen);
-    };
-
     const handleLogout = async () => {
         try {
             await logout();

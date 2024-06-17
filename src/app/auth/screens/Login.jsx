@@ -63,7 +63,7 @@ export default function Login() {
     }
 
     function handleKeyDown(e){
-        if(e.key == "Enter"){
+        if(e.key === "Enter"){
             handleLogin(e)
         }
     }
