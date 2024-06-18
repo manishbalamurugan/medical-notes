@@ -131,7 +131,10 @@ function ControlPanel({
               <div className="flex space-x-2">
                 <button
                   className="bg-violet-500 hover:bg-violet-700 text-white font-medium text-sm p-2 rounded"
-                  onClick={isRecording ? () => { handleTranscribe(); } : handleStartRecording}
+                  onClick={isRecording ? async () => { 
+                    await handleStopRecording(); 
+                    handleTranscribe(); 
+                  } : handleStartRecording}
                 >
                   {isRecording ? 'Stop' : 'Microphone'}
                 </button>
