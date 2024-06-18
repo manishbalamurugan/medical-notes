@@ -31,6 +31,12 @@ function ControlPanel({
     return () => clearInterval(timer);
   }, [isRecording, isPaused]);
 
+  useEffect(() => {
+    if (audioURL) {
+      handleTranscribe();
+    }
+  }, [audioURL]);
+
   const handleStartRecording = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     mediaRecorderRef.current = new MediaRecorder(stream);
@@ -154,7 +160,6 @@ function ControlPanel({
                 <audio ref={audioRef} controls src={audioURL} className="w-full" />
               </div>
             )}
-            {audioURL && handleTranscribe()}
           </div>
         )}
       </div>
