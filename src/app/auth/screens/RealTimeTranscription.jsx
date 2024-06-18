@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { toast } from 'react-toastify';
-import { useAudioRecorder } from 'react-audio-voice-recorder'; 
 import axios from 'axios';
 import Nav from '../../../components/Nav.jsx';
 import ControlPanel from '../../../components/ControlPanel.jsx';
+
 
 function RealTimeTranscription(props) {
   const [uploading, setUploading] = useState(false);
@@ -21,14 +21,26 @@ function RealTimeTranscription(props) {
   const noteID = window.location.pathname.split('/playground/')[1];
   console.log("NoteID", noteID);
 
-  const {
-    startRecording,
-    stopRecording,
-    recordingBlob,
-    isRecording,
-  } = useAudioRecorder({
-    audioTrackConstraints: { echoCancellation: true }
-  });
+  const handleAudioData = useCallback((audioData) => {
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file', audioData.blob, 'audio.wav'); // Ensure the backend can handle the file name
+  
+    axios.post(`/api/transcribe`, formData)
+      .then(response => {
+        setTranscription(response.data.transcription);
+        setNotes(response.data.notes);
+        setIsNoteEditable(true);
+        toast.success('Transcription successful.');
+      })
+      .catch(error => {
+        console.error('Error during transcription:', error);
+        toast.error('An error occurred during transcription.');
+      })
+      .finally(() => {
+        setUploading(false);
+      });
+  }, []);
 
   useEffect(() => {
     if (noteID) {
@@ -62,30 +74,6 @@ function RealTimeTranscription(props) {
       setLoading(false);
     }
   };
-
-  const handleAudioSave = useCallback(async () => {
-    if (!recordingBlob) {
-      toast.error('No recording found.');
-      return;
-    }
-  
-    setUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append('file', recordingBlob, 'audio.webm');
-  
-      const response = await axios.post(`/api/transcribe`, formData);
-  
-      setTranscription(response.data.transcription);
-      setNotes(response.data.notes);
-      setIsNoteEditable(true);
-      toast.success('Transcription successful.');
-    } catch (error) {
-      toast.error('An error occurred during transcription.');
-    } finally {
-      setUploading(false);
-    }
-  }, [recordingBlob]);
 
   const onDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles.length === 0) {
@@ -251,46 +239,43 @@ function RealTimeTranscription(props) {
                 <span id="user-email">Owner: {user?.email}</span>
               </div>
             </div>
-            <div className="mt-4">
+            <div className="mt-4 flex flex-col space-y-4 flex-1 h-full border-2 ">
               {uploading ? (
-                <div className="flex justify-center items-center" role="status">
+                <div className="flex justify-center items-center mt-2" role="status">
                   <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-gray-700 dark:border-gray-300 border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
                   <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)] text-gray-700 dark:text-gray-300 ml-4">Loading...</span>
                 </div>
               ) : (
-                <div className="flex flex-col space-y-4">
+                <>
                   {notes.length > 0 && (
                     <div>
                       <p className="text-sm mb-5 font-semibold uppercase">NOTES</p>
-                      <textarea
-                        className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
-                        value={notes}
-                        onChange={(e) => setNotes(e.target.value)}
-                        readOnly={!isNoteEditable}
-                        rows="10"
-                      />
+                      <div className="flex justify-center">
+                        <textarea
+                          className="w-[95%] p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+                          value={notes}
+                          onChange={(e) => setNotes(e.target.value)}
+                          readOnly={!isNoteEditable}
+                          rows="10"
+                        />
+                      </div>
                     </div>
                   )}
-                </div>
+                </>
               )}
+              <div className="mt-auto bottom-0">
+              <ControlPanel
+                  getRootProps={getRootProps}
+                  getInputProps={getInputProps}
+                  isDragActive={isDragActive}
+                  uploading={uploading}
+                  transcribeAudio={transcribeAudio}
+                  handleAudioData={handleAudioData}
+                />
+              </div>
             </div>
           </div>
         </main>
-        <ControlPanel
-          isUploadOpen={isUploadOpen}
-          setIsUploadOpen={setIsUploadOpen}
-          isRecordOpen={isRecordOpen}
-          setIsRecordOpen={setIsRecordOpen}
-          getRootProps={getRootProps}
-          getInputProps={getInputProps}
-          isDragActive={isDragActive}
-          uploading={uploading}
-          transcribeAudio={transcribeAudio}
-          startRecording={startRecording}
-          stopRecording={stopRecording}
-          handleAudioSave={handleAudioSave}
-          isRecording={isRecording}
-        />
       </div>
     </div>
   );

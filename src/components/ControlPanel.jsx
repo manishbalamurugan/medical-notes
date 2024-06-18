@@ -1,22 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { FaMicrophone, FaStop, FaPause, FaPlay } from 'react-icons/fa';
 
 function ControlPanel({
-  isUploadOpen,
-  setIsUploadOpen,
-  isRecordOpen,
-  setIsRecordOpen,
   getRootProps,
   getInputProps,
   isDragActive,
   uploading,
   transcribeAudio,
-  startRecording,
-  stopRecording,
-  handleAudioSave,
-  isRecording
+  handleAudioData,
 }) {
+  const [activeTab, setActiveTab] = useState('upload');
   const [recordingTime, setRecordingTime] = useState(0);
+  const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [audioURL, setAudioURL] = useState(null);
+  const [audioBlob, setAudioBlob] = useState(null);
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
+  const audioRef = useRef(null);
 
   useEffect(() => {
     let timer;
@@ -28,8 +30,52 @@ function ControlPanel({
     return () => clearInterval(timer);
   }, [isRecording, isPaused]);
 
-  const handlePause = () => {
+  const handleStartRecording = async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRecorderRef.current = new MediaRecorder(stream);
+    mediaRecorderRef.current.ondataavailable = (event) => {
+      audioChunksRef.current.push(event.data);
+    };
+    mediaRecorderRef.current.onstop = () => {
+      const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+      setAudioBlob(audioBlob);
+      setAudioURL(URL.createObjectURL(audioBlob));
+      audioChunksRef.current = [];
+    };
+    mediaRecorderRef.current.start();
+    setIsRecording(true);
+    setIsPaused(false);
+  };
+
+  const handleStopRecording = () => {
+    mediaRecorderRef.current.stop();
+    setIsRecording(false);
+    setRecordingTime(0);
+  };
+
+  const handlePauseRecording = () => {
+    if (isPaused) {
+      mediaRecorderRef.current.resume();
+    } else {
+      mediaRecorderRef.current.pause();
+    }
     setIsPaused(!isPaused);
+  };
+
+  const handleTranscribe = () => {
+    if (audioBlob) {
+      handleAudioData({ blob: audioBlob });
+    } else if (uploadedFile) {
+      handleAudioData({ blob: uploadedFile });
+    }
+  };
+
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setUploadedFile(file);
+      setAudioURL(URL.createObjectURL(file));
+    }
   };
 
   const formatTime = (time) => {
@@ -39,69 +85,80 @@ function ControlPanel({
   };
 
   return (
-    <aside className="w-64 border-l border-gray-200 dark:border-gray-800 overflow-auto p-4 bg-white dark:bg-gray-900">
-      <nav className="flex flex-col gap-4">
-        <div className="space-y-4 mt-[1rem]">
-          <div id="upload" className="flex flex-col">
-            <h3 className="text-md font-bold text-gray-700 dark:text-gray-300 cursor-pointer" onClick={() => setIsUploadOpen(!isUploadOpen)}>Upload Audio</h3>
-            {isUploadOpen && (
-              <div className="flex flex-col mt-2">
-                <div {...getRootProps()} className="bg-gray-50 dark:bg-gray-800 w-full rounded-md p-4 dropzone border-2 border-dashed border-gray-300 dark:border-gray-600 cursor-pointer transition duration-150 ease-in-out hover:bg-gray-100 dark:hover:bg-gray-700">
-                  <input {...getInputProps()} />
-                  {isDragActive ? (
-                    <p className="text-center text-gray-500 dark:text-gray-300">Drop the audio file here...</p>
-                  ) : (
-                    <p className="text-center text-gray-500 dark:text-gray-300">Drag & drop an audio file here, or click to select one</p>
-                  )}
-                </div>
-                <button className={`mt-4 bg-blue-500 hover:bg-blue-700 text-white font-medium text-sm py-2 rounded ${uploading ? "bg-gray-100 disable" : ""}`} onClick={transcribeAudio} disabled={uploading}>
-                  {uploading ? 'Transcribing...' : 'Transcribe'}
-                </button>
-              </div>
-            )}
-          </div>
-          <hr className="border-t border-gray-200 dark:border-gray-800"/>
-          <div id="record" className="flex flex-col">
-            <h3 className="text-md font-bold text-gray-700 dark:text-gray-300 cursor-pointer" onClick={() => setIsRecordOpen(!isRecordOpen)}>Record Audio</h3>
-            {isRecordOpen && (
-              <div className="flex flex-col mt-2 space-y-2">
-                <div className="flex items-center space-x-2">
-                  <button
-                    className={`${
-                      isRecording
-                        ? isPaused
-                          ? 'bg-yellow-500 hover:bg-yellow-700'
-                          : 'bg-violet-500 hover:bg-violet-700'
-                        : 'bg-green-500 hover:bg-green-700'
-                    } text-white font-medium text-sm py-2 px-4 rounded transition duration-150 ease-in-out`}
-                    onClick={isRecording ? handlePause : startRecording}
-                    disabled={uploading}
-                  >
-                    {isRecording ? (isPaused ? 'Resume' : 'Pause') : 'Start'}
-                  </button>
-                  <button className="bg-red-500 hover:bg-red-700 text-white font-medium text-sm py-2 px-4 rounded transition duration-150 ease-in-out" onClick={stopRecording} disabled={!isRecording || uploading}>
-                    Stop
-                  </button>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className="flex-grow bg-gray-200 dark:bg-gray-700 h-2 rounded">
-                    <div className="bg-blue-500 h-2 rounded" style={{ width: `${(recordingTime / 60) * 100}%` }}></div>
-                  </div>
-                  <div className="text-gray-500 dark:text-gray-300">
-                    {formatTime(recordingTime)}
-                  </div>
-                </div>
-                <button className="bg-blue-500 hover:bg-blue-700 text-white font-medium text-sm py-2 px-4 rounded transition duration-150 ease-in-out" onClick={handleAudioSave} disabled={uploading}>
-                  {uploading ? 'Transcribing...' : 'Transcribe'}
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
+    <div className="control-panel border-1 border-gray-200 dark:border-gray-800 overflow-auto p-4 bg-white dark:bg-gray-900">
+      <nav className="flex gap-4 border-b border-gray-200 dark:border-gray-800 mb-4">
+        <button
+          className={`text-md font-bold text-gray-700 dark:text-gray-300 cursor-pointer ${activeTab === 'upload' ? 'border-b-2 border-blue-500' : ''}`}
+          onClick={() => setActiveTab('upload')}
+        >
+          Upload Audio
+        </button>
+        <button
+          className={`text-md font-bold text-gray-700 dark:text-gray-300 cursor-pointer ${activeTab === 'record' ? 'border-b-2 border-blue-500' : ''}`}
+          onClick={() => setActiveTab('record')}
+        >
+          Record Audio
+        </button>
       </nav>
-    </aside>
+      <div className="tab-content">
+        {activeTab === 'upload' && (
+          <div className="flex flex-col mt-2">
+            <div 
+              {...getRootProps({ className: 'bg-gray-50 dark:bg-gray-800 w-full rounded-md p-4 dropzone border-2 border-dashed border-gray-300 dark:border-gray-600 cursor-pointer transition duration-150 ease-in-out hover:bg-gray-100 dark:hover:bg-gray-700' })}
+            >
+              <input {...getInputProps()} className="hidden" />
+              <p className="text-center text-gray-500 dark:text-gray-300">
+                {isDragActive ? 'Drop the files here ...' : 'Drag & drop an audio file here, or click to select one'}
+              </p>
+            </div>
+            <button
+              className="mt-4 w-fit bg-blue-500 hover:bg-blue-700 text-white font-medium text-sm p-2 rounded"
+              onClick={transcribeAudio}
+              disabled={uploading}
+            >
+              {uploading ? 'Transcribing...' : 'Transcribe'}
+            </button>
+          </div>
+        )}
+        {activeTab === 'record' && (
+          <div className="flex flex-col mt-2 p-4 bg-gray-50 dark:bg-gray-800 w-full rounded-md border-2 border-dashed border-gray-300 dark:border-gray-600">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex space-x-2">
+                <button
+                  className="bg-violet-500 hover:bg-violet-700 text-white font-medium text-sm p-2 rounded"
+                  onClick={isRecording ? handleStopRecording : handleStartRecording}
+                >
+                  {isRecording ? <FaStop /> : <FaMicrophone />}
+                </button>
+                {isRecording && (
+                  <button
+                    className="bg-red-500 hover:bg-red-700 text-white font-medium text-sm p-2 rounded"
+                    onClick={handlePauseRecording}
+                  >
+                    {isPaused ? <FaPlay /> : <FaPause />}
+                  </button>
+                )}
+              </div>
+              <span className="text-gray-700 dark:text-gray-300">{formatTime(recordingTime)}</span>
+            </div>
+            {audioURL && (
+              <div className="flex flex-col items-center mt-2">
+                <hr className="w-1/2 border-t border-gray-300 dark:border-gray-600 my-4 pb-2" />
+                <h1 className="mb-5 text-xs font-bold uppercase">Audio Preview</h1>
+                <audio ref={audioRef} controls src={audioURL} className="w-full" />
+                <button
+                  className="mt-4 w-fit bg-blue-500 hover:bg-blue-700 text-white font-medium text-sm p-2 rounded"
+                  onClick={handleTranscribe}
+                >
+                  Transcribe
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 
 export default ControlPanel;
-
