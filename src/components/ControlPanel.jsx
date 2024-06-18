@@ -8,6 +8,7 @@ function ControlPanel({
   uploading,
   transcribeAudio,
   handleAudioData,
+  audioFile,
 }) {
   const [activeTab, setActiveTab] = useState('upload');
   const [recordingTime, setRecordingTime] = useState(0);
@@ -107,16 +108,21 @@ function ControlPanel({
               {...getRootProps({ className: 'bg-gray-50 dark:bg-gray-800 w-full rounded-md p-4 dropzone border-2 border-dashed border-gray-300 dark:border-gray-600 cursor-pointer transition duration-150 ease-in-out hover:bg-gray-100 dark:hover:bg-gray-700' })}
             >
               <input {...getInputProps()} className="hidden" />
-              <p className="text-center text-gray-500 dark:text-gray-300">
-                {isDragActive ? 'Drop the files here ...' : 'Drag & drop an audio file here, or click to select one'}
+              <p className="text-center text-gray-500 dark:text-gray-300 pb-5">
+                {audioFile ? 'View the preview below: ' : (isDragActive ? 'Drop the files here ...' : 'Drag & drop an audio file here, or click to select one')}
               </p>
+              {audioFile && (
+                <div className="mt-2 text-center">
+                  <p className="text-gray-700 dark:text-gray-300 font-medium">{audioFile.name}</p>
+                  <audio controls src={audioURL} className="mt-2 w-full" />
+                </div>
+              )}
             </div>
             <button
               className="mt-4 w-fit bg-blue-500 hover:bg-blue-700 text-white font-medium text-sm p-2 rounded"
               onClick={transcribeAudio}
-              disabled={uploading}
             >
-              {uploading ? 'Transcribing...' : 'Transcribe'}
+              Transcribe
             </button>
           </div>
         )}

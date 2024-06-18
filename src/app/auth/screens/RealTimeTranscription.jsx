@@ -214,10 +214,10 @@ function RealTimeTranscription(props) {
                 <div className="flex items-center space-x-2">
                   <button 
                     className="bg-gray-200 hover:bg-gray-300 text-black text-sm py-2 px-3 rounded"
-                    onClick={handleSaveNote}
-                    disabled={!isNoteEditable || !noteID}
+                    onClick={() => setIsNoteEditable(true)}
+                    disabled={isNoteEditable}
                   >
-                    Save
+                    Edit
                   </button>
                   <button 
                     className="bg-gray-200 hover:bg-gray-300 text-black text-sm py-2 px-3 rounded"
@@ -249,7 +249,7 @@ function RealTimeTranscription(props) {
                 <>
                   {notes.length > 0 && (
                     <div>
-                      <p className="text-sm mb-5 font-semibold uppercase">NOTES</p>
+                      <p className="text-sm m-5 font-semibold uppercase">NOTES</p>
                       <div className="flex justify-center">
                         <textarea
                           className="w-[95%] p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
@@ -271,6 +271,7 @@ function RealTimeTranscription(props) {
                   uploading={uploading}
                   transcribeAudio={transcribeAudio}
                   handleAudioData={handleAudioData}
+                  audioFile={audioFile}
                 />
               </div>
             </div>
