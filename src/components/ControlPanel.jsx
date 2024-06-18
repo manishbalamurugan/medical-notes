@@ -84,6 +84,7 @@ function ControlPanel({
     const seconds = time % 60;
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
+
   return (
     <div className="control-panel border-1 border-gray-200 dark:border-gray-800 overflow-auto p-4 bg-white dark:bg-gray-900">
       <nav className="flex gap-4 border-b border-gray-200 dark:border-gray-800 mb-4">
@@ -131,10 +132,7 @@ function ControlPanel({
               <div className="flex space-x-2">
                 <button
                   className="bg-violet-500 hover:bg-violet-700 text-white font-medium text-sm p-2 rounded"
-                  onClick={isRecording ? async () => { 
-                    await handleStopRecording(); 
-                    handleTranscribe(); 
-                  } : handleStartRecording}
+                  onClick={isRecording ? handleStopRecording : handleStartRecording}
                 >
                   {isRecording ? 'Stop' : 'Microphone'}
                 </button>
@@ -156,6 +154,7 @@ function ControlPanel({
                 <audio ref={audioRef} controls src={audioURL} className="w-full" />
               </div>
             )}
+            {audioURL && handleTranscribe()}
           </div>
         )}
       </div>
