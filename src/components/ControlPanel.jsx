@@ -84,7 +84,6 @@ function ControlPanel({
     const seconds = time % 60;
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
-
   return (
     <div className="control-panel border-1 border-gray-200 dark:border-gray-800 overflow-auto p-4 bg-white dark:bg-gray-900">
       <nav className="flex gap-4 border-b border-gray-200 dark:border-gray-800 mb-4">
@@ -132,16 +131,16 @@ function ControlPanel({
               <div className="flex space-x-2">
                 <button
                   className="bg-violet-500 hover:bg-violet-700 text-white font-medium text-sm p-2 rounded"
-                  onClick={isRecording ? handleStopRecording : handleStartRecording}
+                  onClick={isRecording ? () => { handleStopRecording(); handleTranscribe(); } : handleStartRecording}
                 >
-                  {isRecording ? <FaStop /> : <FaMicrophone />}
+                  {isRecording ? 'Stop' : 'Record'}
                 </button>
                 {isRecording && (
                   <button
                     className="bg-red-500 hover:bg-red-700 text-white font-medium text-sm p-2 rounded"
                     onClick={handlePauseRecording}
                   >
-                    {isPaused ? <FaPlay /> : <FaPause />}
+                    {isPaused ? 'Play' : 'Pause'}
                   </button>
                 )}
               </div>
@@ -152,12 +151,6 @@ function ControlPanel({
                 <hr className="w-1/2 border-t border-gray-300 dark:border-gray-600 my-4 pb-2" />
                 <h1 className="mb-5 text-xs font-bold uppercase">Audio Preview</h1>
                 <audio ref={audioRef} controls src={audioURL} className="w-full" />
-                <button
-                  className="mt-4 w-fit bg-blue-500 hover:bg-blue-700 text-white font-medium text-sm p-2 rounded"
-                  onClick={handleTranscribe}
-                >
-                  Transcribe
-                </button>
               </div>
             )}
           </div>
