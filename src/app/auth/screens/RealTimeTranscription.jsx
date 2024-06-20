@@ -88,21 +88,31 @@ function RealTimeTranscription(props) {
   }, []);
 
   const transcribeAudio = async () => {
+    if (!audioFile) {
+      toast.error('No audio file selected.');
+      return;
+    }
+  
     setUploading(true);
-
+  
     try {
       const formData = new FormData();
-      audioFile && formData.append('file', audioFile);
-      const response = await axios.post(`/api/transcribe`, formData);
-
+      formData.append('file', audioFile);
+  
+      const response = await axios.post('/api/transcribe', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+  
       console.log(response);
-
+  
       setTranscription(response.data.transcription);
       setNotes(response.data.notes);
       setIsNoteEditable(true);
       toast.success('Transcription successful.');
     } catch (error) {
-      console.error(error); // For more detailed debugging
+      console.error('Error during transcription:', error);
       toast.error('An error occurred during transcription.');
     } finally {
       setUploading(false);
@@ -219,13 +229,23 @@ function RealTimeTranscription(props) {
                   >
                     Edit
                   </button>
-                  <button 
-                    className="bg-gray-200 hover:bg-gray-300 text-black text-sm py-2 px-3 rounded"
-                    onClick={handleFinishNote}
-                    disabled={!isNoteEditable}
-                  >
-                    Finish
-                  </button>
+                  {noteID ? (
+                    <button 
+                      className="bg-gray-200 hover:bg-gray-300 text-black text-sm py-2 px-3 rounded"
+                      onClick={handleSaveNote}
+                      disabled={!isNoteEditable}
+                    >
+                      Save
+                    </button>
+                  ) : (
+                    <button 
+                      className="bg-gray-200 hover:bg-gray-300 text-black text-sm py-2 px-3 rounded"
+                      onClick={handleFinishNote}
+                      disabled={!isNoteEditable}
+                    >
+                      Finish
+                    </button>
+                  )}
                   <button 
                     className="bg-gray-200 hover:bg-gray-300 text-black text-sm py-2 px-3 rounded"
                     onClick={handleRefreshState}

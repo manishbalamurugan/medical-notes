@@ -32,7 +32,7 @@ function ControlPanel({
   }, [isRecording, isPaused]);
 
   useEffect(() => {
-    if (audioURL) {
+    if (audioURL && activeTab === 'Record') {
       handleTranscribe();
     }
   }, [audioURL]);
