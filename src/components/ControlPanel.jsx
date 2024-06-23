@@ -133,6 +133,7 @@ function ControlPanel({
           </div>
         )}
         {activeTab === 'record' && (
+          <>
           <div className="flex flex-col mt-2 p-4 bg-gray-50 dark:bg-gray-800 w-full rounded-md border-2 border-dashed border-gray-300 dark:border-gray-600">
             <div className="flex items-center justify-between mb-4">
               <div className="flex space-x-2">
@@ -161,7 +162,17 @@ function ControlPanel({
               </div>
             )}
           </div>
-        )}
+
+          {audioURL && (
+            <button
+            className="mt-4 w-fit bg-blue-500 hover:bg-blue-700 text-white font-medium text-sm p-2 rounded"
+            onClick={transcribeAudio}
+            >
+            Transcribe
+          </button>
+          )}
+          </>
+      )}
       </div>
     </div>
   );
