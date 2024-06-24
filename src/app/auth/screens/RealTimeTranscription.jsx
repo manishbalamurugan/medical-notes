@@ -22,6 +22,10 @@ function RealTimeTranscription(props) {
   console.log("NoteID", noteID);
 
   const handleAudioData = useCallback((audioData) => {
+    if (!(audioData.blob instanceof Blob)) {
+      console.error('audioData.blob is not a Blob:', audioData.blob);
+      return;
+    }
     setUploading(true);
     const formData = new FormData();
     formData.append('file', audioData.blob, 'audio.wav'); // Ensure the backend can handle the file name
