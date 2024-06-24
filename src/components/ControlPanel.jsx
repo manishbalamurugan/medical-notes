@@ -31,11 +31,11 @@ function ControlPanel({
     return () => clearInterval(timer);
   }, [isRecording, isPaused]);
 
-  useEffect(() => {
-    if (audioURL && activeTab === 'Record') {
-      handleTranscribe();
-    }
-  }, [audioURL]);
+  // useEffect(() => {
+  //   if (audioURL && activeTab === 'Record') {
+  //     handleTranscribe();
+  //   }
+  // }, [audioURL]);
 
   const handleStartRecording = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -45,6 +45,7 @@ function ControlPanel({
     };
     mediaRecorderRef.current.onstop = () => {
       const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+      console.log('Created audioBlob:', audioBlob);
       setAudioBlob(audioBlob);
       setAudioURL(URL.createObjectURL(audioBlob));
       audioChunksRef.current = [];
@@ -53,7 +54,7 @@ function ControlPanel({
     setIsRecording(true);
     setIsPaused(false);
   };
-
+  
   const handleStopRecording = () => {
     mediaRecorderRef.current.stop();
     setIsRecording(false);
