@@ -4,6 +4,9 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import Nav from '../../../components/Nav.jsx';
 import ControlPanel from '../../../components/ControlPanel.jsx';
+import { v4 as uuidv4 } from 'uuid';
+
+import { useAudioRecorder } from 'react-audio-voice-recorder';
 
 
 function RealTimeTranscription(props) {
@@ -149,13 +152,14 @@ function RealTimeTranscription(props) {
 
     try {
       const response = await axios.post('/api/saveNotes', {
+        noteID: noteID ? noteID : uuidv4(),
         userID: user?.email,
         title: noteTitle,
         notes: notes.length > 0 ? notes : "N/A",
         transcription: transcription.length > 0 ? transcription : "N/A"
       });
 
-      if (response.status === 201) {
+      if (response.status === 200) {
         toast.success('Notes saved successfully.');
       } else {
         toast.error('Failed to save notes.');
