@@ -83,30 +83,21 @@ function RealTimeTranscription(props) {
   }, []);
 
   const transcribeAudio = async () => {
-    if (!audioFile) {
-      toast.error('No audio file selected.');
-      return;
-    }
-  
     setUploading(true);
-  
+
     try {
       const formData = new FormData();
-      formData.append('file', audioFile);
-  
-      const response = await axios.post('/api/transcribe', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-  
+      audioFile && formData.append('file', audioFile);
+      const response = await axios.post(`/api/transcribe`, formData);
+
       console.log(response);
+
       setTranscription(response.data.transcription);
       setNotes(response.data.notes);
       setIsNoteEditable(true);
       toast.success('Transcription successful.');
     } catch (error) {
-      console.error('Error during transcription:', error);
+      console.error(error); // For more detailed debugging
       toast.error('An error occurred during transcription.');
     } finally {
       setUploading(false);
