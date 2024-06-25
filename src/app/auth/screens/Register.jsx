@@ -53,22 +53,14 @@ export default function Register() {
             <div className="absolute inset-0 w-screen h-screen bg-white" > </div>
             <div className="absolute inset-0">
                 <div className="flex align-center sm:align-start mx-auto p-2 m-2 px-5 pt-3">
-                <svg
-                    className="h-8 w-8 text-zinc-800 dark:text-zinc-800"
-                    fill="none"
-                    height="24"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                    width="24"
-                    xmlns="http://www.w3.org/2000/svg"
-                >
-                    <path d="M12 3v18c-5 0-9-4-9-9s4-9 9-9z" />
-                    <path d="M12 3c5 0 9 4 9 9s-4 9-9 9V3z" />
-                </svg>
-                <h1 className="text-lg font-semibold text-zinc-800 dark:text-zinc-800">V2T (Magnum Consulting)</h1>
+                <div
+                    className="h-8 w-8 mx-4 mb-2 self-start rounded-full"
+                    style={{
+                        background: 'linear-gradient(135deg, #FF69B4, #8A2BE2, #FFA500)',
+                        filter: 'brightness(1.2)',
+                    }}
+                ></div>
+                <h1 className="text-lg font-semibold text-zinc-800 dark:text-zinc-800">Medical Notes</h1>
                 </div>
             </div>
             <div className="absolute inset-0 justify-center items-center w-full">
