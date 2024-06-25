@@ -74,7 +74,7 @@ function ControlPanel({
     if (audioBlob) {
       handleAudioData({ blob: audioBlob });
     } else if (uploadedFile) {
-      handleAudioData({ blob: uploadedFile });
+      transcribeAudio()
     }
   };
 
@@ -127,7 +127,7 @@ function ControlPanel({
             </div>
             <button
               className="mt-4 w-fit bg-blue-500 hover:bg-blue-700 text-white font-medium text-sm p-2 rounded"
-              onClick={handleTranscribe}
+              onClick={transcribeAudio}
             >
               Transcribe
             </button>
