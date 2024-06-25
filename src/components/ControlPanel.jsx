@@ -167,7 +167,7 @@ function ControlPanel({
           {audioURL && (
             <button
             className="mt-4 w-fit bg-blue-500 hover:bg-blue-700 text-white font-medium text-sm p-2 rounded"
-            onClick={handleAudioData}
+            onClick={() => handleAudioData(audioBlob)}
             >
             Transcribe
           </button>

@@ -22,13 +22,9 @@ function RealTimeTranscription(props) {
   console.log("NoteID", noteID);
 
   const handleAudioData = useCallback((audioData) => {
-    if (!(audioData.blob instanceof Blob)) {
-      console.error('audioData.blob is not a Blob:', audioData.blob);
-      return;
-    }
     setUploading(true);
     const formData = new FormData();
-    formData.append('file', audioData.blob, 'audio.wav'); // Ensure the backend can handle the file name
+    formData.append('file', audioData, 'audio.wav');
   
     axios.post(`/api/transcribe`, formData)
       .then(response => {
@@ -54,11 +50,6 @@ function RealTimeTranscription(props) {
     }
   }, [noteID]);
 
-  useEffect(() => {
-    if (!uploading) {
-      console.log('Upload complete');
-    }
-  }, [uploading]);
 
   const fetchNoteData = async (noteID) => {
     try {
@@ -163,12 +154,8 @@ function RealTimeTranscription(props) {
   };
 
   const handleFinishNote = async () => {
-    console.log('User ID:', user?.email);
-    console.log('Note Title:', noteTitle);
-    console.log('Notes:', notes);
-    console.log('Transcription:', transcription);
+
     setIsNoteEditable(false);
-    toast.success('Note Submitted!');
 
     try {
       const response = await axios.post('/api/saveNotes', {
