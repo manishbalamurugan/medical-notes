@@ -25,15 +25,26 @@ export function AuthProvider({ children }) {
   const [error, setError] = useState("")
 
   async function register(email, password) {
-    return createUserWithEmailAndPassword(auth, email, password).then((result) => {
-      if (result.user) {
-        setCurrentUser({
-          ...currentUser,
-          displayName: result.user.displayName,
-          photoURL: result.user.photoURL,
-        });
-      }
-    });
+    const domain = email.split('@')[1];
+    if (domain !== 'mwcpeds.com') {
+      setError("Only email addresses from @mwcpeds.com are allowed to register.");
+      throw new Error("Invalid email domain");
+    }
+  
+    return createUserWithEmailAndPassword(auth, email, password)
+      .then((result) => {
+        if (result.user) {
+          setCurrentUser({
+            ...currentUser,
+            displayName: result.user.displayName,
+            photoURL: result.user.photoURL,
+          });
+        }
+      })
+      .catch((error) => {
+        setError(error.message);
+        throw error;
+      });
   }
 
   async function login(email, password) {
