@@ -96,12 +96,6 @@ function ControlPanel({
     <div className="control-panel border-1 border-gray-200 dark:border-gray-800 overflow-auto p-4 bg-white dark:bg-gray-900">
       <nav className="flex gap-4 border-b border-gray-200 dark:border-gray-800 mb-4">
         <button
-          className={`text-md font-bold text-gray-700 dark:text-gray-300 cursor-pointer ${activeTab === 'upload' ? 'border-b-2 border-blue-500' : ''}`}
-          onClick={() => setActiveTab('upload')}
-        >
-          Upload Audio
-        </button>
-        <button
           className={`text-md font-bold text-gray-700 dark:text-gray-300 cursor-pointer ${activeTab === 'record' ? 'border-b-2 border-blue-500' : ''}`}
           onClick={() => setActiveTab('record')}
         >
@@ -109,30 +103,6 @@ function ControlPanel({
         </button>
       </nav>
       <div className="tab-content">
-        {activeTab === 'upload' && (
-          <div className="flex flex-col mt-2">
-            <div 
-              {...getRootProps({ className: 'bg-gray-50 dark:bg-gray-800 w-full rounded-md p-4 dropzone border-2 border-dashed border-gray-300 dark:border-gray-600 cursor-pointer transition duration-150 ease-in-out hover:bg-gray-100 dark:hover:bg-gray-700' })}
-            >
-              <input {...getInputProps()} className="hidden" />
-              <p className="text-center text-gray-500 dark:text-gray-300 pb-5">
-                {audioFile ? 'View the preview below: ' : (isDragActive ? 'Drop the files here ...' : 'Drag & drop an audio file here, or click to select one')}
-              </p>
-              {audioFile && (
-                <div className="mt-2 text-center">
-                  <p className="text-gray-700 dark:text-gray-300 font-medium">{audioFile.name}</p>
-                  <audio controls src={audioURL} className="mt-2 w-full" />
-                </div>
-              )}
-            </div>
-            <button
-              className="mt-4 w-fit bg-blue-500 hover:bg-blue-700 text-white font-medium text-sm p-2 rounded"
-              onClick={transcribeAudio}
-            >
-              Transcribe
-            </button>
-          </div>
-        )}
         {activeTab === 'record' && (
           <>
           <div className="flex flex-col mt-2 p-4 bg-gray-50 dark:bg-gray-800 w-full rounded-md border-2 border-dashed border-gray-300 dark:border-gray-600">
