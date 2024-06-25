@@ -101,7 +101,6 @@ function RealTimeTranscription(props) {
       });
   
       console.log(response);
-  
       setTranscription(response.data.transcription);
       setNotes(response.data.notes);
       setIsNoteEditable(true);
