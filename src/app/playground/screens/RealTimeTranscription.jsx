@@ -3,7 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import Nav from '../../../components/Nav.jsx';
-import ControlPanel from '../../../components/ControlPanel.jsx';
+import ControlPanel from '../components/ControlPanel.jsx';
 import { v4 as uuidv4 } from 'uuid';
 
 import { useAudioRecorder } from 'react-audio-voice-recorder';
@@ -29,7 +29,7 @@ function RealTimeTranscription(props) {
     const formData = new FormData();
     formData.append('file', audioData, 'audio.wav');
   
-    axios.post(`/api/transcribe`, formData)
+    axios.post(`http://localhost:3030/api/transcribe`, formData)
       .then(response => {
         setTranscription(response.data.transcription);
         setNotes(response.data.notes);
@@ -56,7 +56,7 @@ function RealTimeTranscription(props) {
 
   const fetchNoteData = async (noteID) => {
     try {
-      const response = await axios.get(`/api/retrieveNote`, {
+      const response = await axios.get(`http://localhost:3030/api/retrieveNote`, {
         params: { noteID }
       });
       const noteData = response.data;
@@ -64,7 +64,7 @@ function RealTimeTranscription(props) {
       setTranscription(noteData.transcription);
       setNotes(noteData.notes);
       setNoteTitle(noteData.title);
-      setIsNoteEditable(true);
+      setIsNoteEditable(false);
     } catch (error) {
       console.error('Error fetching note data:', error);
       toast.error('An error occurred while fetching note data.');
@@ -91,7 +91,7 @@ function RealTimeTranscription(props) {
     try {
       const formData = new FormData();
       audioFile && formData.append('file', audioFile);
-      const response = await axios.post(`/api/transcribe`, formData);
+      const response = await axios.post(`http://localhost:3030/api/transcribe`, formData);
 
       console.log(response);
 
@@ -127,7 +127,7 @@ function RealTimeTranscription(props) {
     setIsNoteEditable(false);
 
     try {
-      const response = await axios.post('/api/saveNote', {
+      const response = await axios.post('http://localhost:3030/api/saveNote', {
         noteID: noteID,
         userID: user?.email,
         title: noteTitle,
@@ -151,7 +151,7 @@ function RealTimeTranscription(props) {
     setIsNoteEditable(false);
 
     try {
-      const response = await axios.post('/api/saveNotes', {
+      const response = await axios.post('http://localhost:3030/api/saveNotes', {
         noteID: noteID ? noteID : uuidv4(),
         userID: user?.email,
         title: noteTitle,

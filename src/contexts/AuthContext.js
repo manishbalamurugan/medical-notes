@@ -31,20 +31,20 @@ export function AuthProvider({ children }) {
       throw new Error("Invalid email domain");
     }
   
-    return createUserWithEmailAndPassword(auth, email, password)
-      .then((result) => {
-        if (result.user) {
-          setCurrentUser({
-            ...currentUser,
-            displayName: result.user.displayName,
-            photoURL: result.user.photoURL,
-          });
-        }
-      })
-      .catch((error) => {
-        setError(error.message);
-        throw error;
-      });
+    try {
+      const result = await createUserWithEmailAndPassword(auth, email, password);
+      if (result.user) {
+        setCurrentUser({
+          ...currentUser,
+          displayName: result.user.displayName,
+          photoURL: result.user.photoURL,
+        });
+      }
+    } catch (error) {
+      console.error("Error during registration:", error);
+      setError(error.message);
+      throw error;
+    }
   }
 
   async function login(email, password) {

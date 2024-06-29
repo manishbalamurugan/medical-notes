@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route} from 'react-router-dom';
-import RealTimeTranscription from './app/auth/screens/RealTimeTranscription';
-import Dashboard from './app/auth/screens/Dashboard';
+import RealTimeTranscription from './app/playground/screens/RealTimeTranscription';
+import Dashboard from './app/dashboard/screens/Dashboard';
 import Login from './app/auth/screens/Login';
 
 import { AuthProvider } from "./contexts/AuthContext";
-import RequireAuth from "./app/auth/utils/WithPrivateRoute";
+import RequireAuth from "./app/utils/WithPrivateRoute";
 import Register from './app/auth/screens/Register';
 
 import { getAuth, onAuthStateChanged } from "firebase/auth";
