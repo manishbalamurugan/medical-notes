@@ -12,7 +12,7 @@ const Dashboard = (props) => {
     useEffect(() => {
         const fetchNotes = async () => {
             try {
-                const response = await axios.get(`http://localhost:3030/api/retrieveNotes`, {
+                const response = await axios.get(`/api/retrieveNotes`, {
                     params: { userID: user.email }
                 });
                 setNotes(response.data);
