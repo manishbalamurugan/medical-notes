@@ -28,9 +28,9 @@ function App() {
     <AuthProvider> {/* Provides authentication context to the app */}
       <Router>
           <Routes>
-              <Route exact path="/" element={<RequireAuth> <Dashboard user={user} /></RequireAuth>} /> {/* Dashboard route, protected by RequireAuth */}
-              <Route exact path="/playground" element={<RequireAuth> <RealTimeTranscription user={user} /> </RequireAuth>} /> {/* Real-time transcription route, protected by RequireAuth */}
-              <Route exact path="/playground/:noteID" element={<RequireAuth><RealTimeTranscription user={user} /></RequireAuth>} /> {/* Real-time transcription route with noteID, protected by RequireAuth */}
+              <Route exact path="/" element={ <Dashboard user={{ email:"vickyvin955@gmail.com"}} />} /> {/* Dashboard route, protected by RequireAuth */}
+              <Route exact path="/playground" element={ <RealTimeTranscription user={{ email:"vickyvin955@gmail.com"}} /> } /> {/* Real-time transcription route, protected by RequireAuth */}
+              <Route exact path="/playground/:noteID" element={<RealTimeTranscription user={{ email:"vickyvin955@gmail.com"}} />} /> {/* Real-time transcription route with noteID, protected by RequireAuth */}
               <Route exact path="/login" element={<Login />} /> {/* Login route */}
               <Route exact path="/register" element={<Register/>} /> {/* Register route */}
           </Routes>

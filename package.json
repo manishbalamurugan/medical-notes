@@ -57,6 +57,7 @@
     "electron-pack": "npm run build && electron-builder",
     "electron-win": "npm run build && electron-builder --win"
   },
+  "proxy" :"http://localhost:3030",
   "build": {
     "appId": "com.magnumconsulting.medicalnotes",
     "files": [
